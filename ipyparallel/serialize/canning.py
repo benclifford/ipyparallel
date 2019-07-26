@@ -180,6 +180,11 @@ class CannedFunction(CannedObject):
             self.defaults = [ can(fd) for fd in f.__defaults__ ]
         else:
             self.defaults = None
+
+        if f.__kwdefaults__:
+            self.kwdefaults = can(f.__kwdefaults__)
+        else:
+            self.kwdefaults = None
         
         closure = py3compat.get_closure(f)
         if closure:
@@ -206,11 +211,18 @@ class CannedFunction(CannedObject):
             defaults = tuple(uncan(cfd, g) for cfd in self.defaults)
         else:
             defaults = None
+
+        if self.kwdefaults:
+            kwdefaults = uncan(self.kwdefaults)
+        else:
+            kwdefaults = None
+
         if self.closure:
             closure = tuple(uncan(cell, g) for cell in self.closure)
         else:
             closure = None
         newFunc = FunctionType(self.code, g, self.__name__, defaults, closure)
+        newFunc.__kwdefaults__ = kwdefaults
         return newFunc
 
 
